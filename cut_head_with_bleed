@@ -1,0 +1,66 @@
+import random
+import math
+import time
+
+class Bleed:
+    def __init__(self, time_remain, damage):
+        self.time_remain = time_remain
+        self.damage = damage
+
+total = 0
+target = 100600000
+base = 11000
+crit = 0.38
+crit_damage = 5.59
+time_elapsed = 0
+cut_time = 0
+cutting = False
+cut_total = 0
+cut_max_time = 3.1
+cut_increase = 0.15
+delta_time = 0.3
+bleed = 0.6
+bleeds = []
+bleed_duration = 5
+while total < target:
+    if cutting:
+        if random.random() < crit:
+            cut_total += base * (1 + crit_damage)
+        else:
+            cut_total += base
+        cut_time += delta_time
+        if cut_time > cut_max_time:
+            cut_time = 0
+            cutting = False
+            for i in range(math.ceil(cut_max_time)):
+                cut_total = cut_total * (1 + cut_increase)
+            total += cut_total
+            bleeds.append(Bleed(bleed_duration + delta_time, cut_total))
+            print(f"{math.ceil(cut_total):,}")
+            cut_total = 0
+    else:
+        if random.random() < crit:
+            cutting = True
+            cut_time += delta_time
+            cut_total += base * (1 + crit_damage)
+            for bleed_obj in bleeds:
+                if bleed_obj.time_remain > cut_max_time:
+                    cut_total += bleed_obj.damage * (cut_max_time / bleed_duration)
+                else:
+                    cut_total += bleed_obj.damage * (bleed_obj.time_remain / bleed_duration)
+        else:
+            total += base
+            print(f"{base:,}")
+            bleeds.append(Bleed(bleed_duration + delta_time, base * bleed))
+    time.sleep(delta_time)
+    time_elapsed += delta_time
+    for bleed_obj in bleeds:
+        bleed_obj.time_remain -= delta_time
+    bleeds = [obj for obj in bleeds if obj.time_remain > 0]
+print(time_elapsed)
+    
+
+        
+        
+
+
